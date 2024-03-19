@@ -8,6 +8,7 @@ project(
 )
 
 set(CMAKE_C_STANDARD 17)
+
 include_directories(include)
 
 file(GLOB_RECURSE SOURCES "src/*.c")
