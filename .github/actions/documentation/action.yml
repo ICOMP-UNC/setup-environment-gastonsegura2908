@@ -1,0 +1,47 @@
+name: "Doc check"
+description: "Code documentation generation with Doxygen"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Run doxygen command"
+      shell: bash
+      run: |
+          # We only make check, not changes
+          DOX_CONF_FILE=$(pwd)/Doxyfile
+
+          # This code block reads the contents of the existing Doxygen configuration file and then adds a line at the end that specifies the input directories.
+          # In this case, the input directories are 'src', 'include' and 'lib'.
+          {
+              cat $DOX_CONF_FILE
+              echo "INPUT" = $(pwd)/src $(pwd)/include $(pwd)/lib
+          } > $DOX_CONF_FILE
+
+          # Generate documentation
+          # 'dot' is a tool used to generate dependency graphs between various code elements.
+          # The 'sudo dot -c' command sets 'dot' to the default values.
+          # This is necessary so Doxygen can use 'dot' to generate graphs.
+          sudo dot -c
+
+          ERROR_FILE_FLAG=$(pwd)/dox_errors.txt
+
+          # 'doxygen' is the tool that generates documentation from the source code files.
+          # The '-s' argument tells 'doxygen' not to include comments in the output configuration file.
+          # The command 'doxygen -s $DOX_CONF_FILE' generates the documentation using the configuration specified in '$DOX_CONF_FILE'.
+          # The output of 'doxygen' is redirected to a file called 'dox_errors.txt'. If 'doxygen' finds any errors, it will be written to this file.
+          DOXYGEN_COMMAND=$(doxygen -s $DOX_CONF_FILE) > $ERROR_FILE_FLAG
+
+          if [ -s $ERROR_FILE_FLAG ]; then
+              echo "Error: There are some files that are not documented correctly"
+              exit 1
+          else
+              echo "All files are documented correctly. Niiiceee"
+              exit 0
+          fi
+    # Upload errors as an artifact, when failed
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: Doxygen errors!!!
+        path: $(pwd)/dox_errors.txt
+        retention-days: 1
