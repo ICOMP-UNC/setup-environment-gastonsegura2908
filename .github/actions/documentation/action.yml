@@ -10,19 +10,25 @@ runs:
           # We only make check, not changes
           DOX_CONF_FILE=$(pwd)/Doxyfile
 
-          # ToDo: Add documentation about this command and describe better
+          # This code block reads the contents of the existing Doxygen configuration file and then adds a line at the end that specifies the input directories.
+          # In this case, the input directories are 'src', 'include' and 'lib'.
           {
               cat $DOX_CONF_FILE
               echo "INPUT" = $(pwd)/src $(pwd)/include $(pwd)/lib
           } > $DOX_CONF_FILE
 
           # Generate documentation
-          # ToDo: Add documentation about this command and describe better
+          # 'dot' is a tool used to generate dependency graphs between various code elements.
+          # The 'sudo dot -c' command sets 'dot' to the default values.
+          # This is necessary so Doxygen can use 'dot' to generate graphs.
           sudo dot -c
 
           ERROR_FILE_FLAG=$(pwd)/dox_errors.txt
 
-          # ToDo: Add documentation and describe better this command
+          # 'doxygen' is the tool that generates documentation from the source code files.
+          # The '-s' argument tells 'doxygen' not to include comments in the output configuration file.
+          # The command 'doxygen -s $DOX_CONF_FILE' generates the documentation using the configuration specified in '$DOX_CONF_FILE'.
+          # The output of 'doxygen' is redirected to a file called 'dox_errors.txt'. If 'doxygen' finds any errors, it will be written to this file.
           DOXYGEN_COMMAND=$(doxygen -s $DOX_CONF_FILE) > $ERROR_FILE_FLAG
 
           if [ -s $ERROR_FILE_FLAG ]; then

@@ -2,5 +2,5 @@
 
 /**
  * @brief greet the user
-*/
+ */
 void greetings();
